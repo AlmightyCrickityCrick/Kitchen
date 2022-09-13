@@ -39,23 +39,25 @@ class Chef : Thread() {
     //Goes through order list
         for (i in 0..orderList.size - 1){
             //Checks if there are foods with unassigned chefs
-            if (orderList[i].hasUnpreparedFood()){
-                //Checks each food if its assigned
-                for (food in 0..orderList[i].cooking_details!!.size - 1) {
-                    //If food is not assigned, and chef still has proficiency, cooks it and assigns himself
-                    var curCookDet = orderList[i].cooking_details!![food]
-                    if (curCookDet.cook_id == null && activeTask.get() < this.proficiency ){
-                        orderList[i].cooking_details!![food].cook_id = this.cookId
-                        println("Cook ${this.cookId} is cooking $food from ${orderList[i].order_id} order")
-                        cook(menu[curCookDet.food_id - 1])
-                        lock.unlock()
-                        return
+            try {
+                if (orderList[i].hasUnpreparedFood()) {
+                    //Checks each food if its assigned
+                    for (food in 0..orderList[i].cooking_details!!.size - 1) {
+                        //If food is not assigned, and chef still has proficiency, cooks it and assigns himself
+                        var curCookDet = orderList[i].cooking_details!![food]
+                        if (curCookDet.cook_id == null && activeTask.get() < this.proficiency) {
+                            orderList[i].cooking_details!![food].cook_id = this.cookId
+                            println("Cook ${this.cookId} is cooking $food from ${orderList[i].order_id} order")
+                            cook(menu[curCookDet.food_id - 1])
+                            lock.unlock()
+                            return
+
+                        }
 
                     }
-
-                }
-                //If the food has no unnasigned chefs, sends it back to dining
-            }else sendFood(i)
+                    //If the food has no unnasigned chefs, sends it back to dining
+                } else sendFood(i)
+            } catch(e:IndexOutOfBoundsException){ print("")}
         }
         lock.unlock()
     }

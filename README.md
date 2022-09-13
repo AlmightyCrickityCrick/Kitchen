@@ -10,5 +10,5 @@ And then use the commands below to create the image and run the docker container
 ```
 docker network create lina-restaurant network
 docker build -t kitchen .     
-docker run --name kitchen-container --network lina-restaurant-network  -p 8080:8080 kitchen
+docker run --name kitchen-container --network lina-restaurant-network  -p 8081:8081 kitchen
 ```

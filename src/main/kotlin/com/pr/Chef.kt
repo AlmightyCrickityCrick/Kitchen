@@ -10,6 +10,8 @@ class Chef : Thread() {
     var catchPhrase = ""
     var activeTask = AtomicInteger()
 
+
+
     fun setCook(id: Int, rank: Int, proficiency: Int, name: String, catchPhrase: String, ) {
         this.cookId = id
         this.rank = rank

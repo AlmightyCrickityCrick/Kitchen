@@ -34,4 +34,8 @@ fun main() {
             }
         }
     }.start(wait = false)
+
+    for (i in 0.. Constants.NR_OF_COOKS-1){
+        chefList[i].start()
+    }
 }

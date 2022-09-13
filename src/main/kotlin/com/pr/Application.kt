@@ -1,12 +1,12 @@
-package com.example
+package com.pr
 
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import com.example.plugins.*
+import com.pr.plugins.*
 
 fun main() {
-    embeddedServer(Netty, port = 8080, host = "0.0.0.0") {
+    embeddedServer(Netty, port = 8081) {
         configureSerialization()
         configureRouting()
-    }.start(wait = true)
+    }.start(wait = false)
 }

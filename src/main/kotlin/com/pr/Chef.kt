@@ -35,20 +35,21 @@ class Chef : Thread() {
     }
 //Function to search for orders that can be cooked
     fun searchTask(){
-        lock.lock()
     //Goes through order list
-        for (i in 0..orderList.size - 1){
-            //Checks if there are foods with unassigned chefs
+        for (i in orderList.navigableKeySet()){
             try {
-                if (orderList[i].hasUnpreparedFood()) {
-                    //Checks each food if its assigned
-                    for (food in 0..orderList[i].cooking_details!!.size - 1) {
-                        //If food is not assigned, and chef still has proficiency, cooks it and assigns himself
-                        var curCookDet = orderList[i].cooking_details!![food]
-                        if (curCookDet.cook_id == null && activeTask.get() < this.proficiency) {
-                            orderList[i].cooking_details!![food].cook_id = this.cookId
-                            println("Cook ${this.cookId} is cooking $food from ${orderList[i].order_id} order")
-                            cook(menu[curCookDet.food_id - 1])
+                lock.lock()
+                //Checks if the order is not ready to be served
+                if (orderList[i]?.checkIfReady() == false) {
+                    //Checks each food if its taken
+                    for (food in 0 until (orderList[i]?.cooking_details?.size ?: 0)) {
+                        //If food is not ready, chef still has proficiency, and needed rank cooks it and assigns himself
+                        var curCookDet = orderList[i]?.cooking_details?.get(food)
+                        if (curCookDet?.state?.get() == 0 && activeTask.get() < this.proficiency && menu[curCookDet.food_id -1].complexity <=  rank) {
+                            curCookDet?.state?.set(1)
+                            orderList[i]?.cooking_details?.get(food)?.cook_id = this.cookId
+                            println("Cook ${this.cookId} is cooking $food (prof ${menu[curCookDet.food_id - 1].complexity})from ${orderList[i]?.order_id} order")
+                            cook(menu[curCookDet.food_id - 1], food, i)
                             lock.unlock()
                             return
 
@@ -57,34 +58,38 @@ class Chef : Thread() {
                     }
                     //If the food has no unnasigned chefs, sends it back to dining
                 } else sendFood(i)
-            } catch(e:IndexOutOfBoundsException){ print("")}
+            } catch(e:NullPointerException){ print("")}
+            lock.unlock()
         }
-        lock.unlock()
     }
 //Function to cook the food. Starts a proficiency thread and sleeps the time units needed
-    fun cook(f: Food){
+    fun cook(f: Food, fId: Int, oId:String){
         activeTask.incrementAndGet()
         val task = thread {
             sleep((f.preparationTime * Constants.TIME_UNIT).toLong())
+            //Set food as finished
+            orderList[oId]?.cooking_details?.get(fId)?.state?.set(2)
             activeTask.decrementAndGet()
         }
 
     }
 //Function to send the food back to the DinningHall
-    fun sendFood(i:Int){
-        var ord = orderList[i]
-        ord.cooking_time = (System.currentTimeMillis() - ord.pick_up_time).toInt()
-        orderList.removeAt(i)
+    fun sendFood(i:String) {
+    var ord = orderList[i]?.toFinished()
+    orderList.remove(i)
+    if (ord != null) {
         val serilizedOrder = Json.encodeToString(FinishedOrder.serializer(), ord)
         println(serilizedOrder)
         val client = HttpClient()
-        println("${ord.order_id} is done")
+        println("${ord?.order_id} is done")
         runBlocking {
             var job = launch {
-                val resp: HttpResponse = client.post(Constants.DINING_URL+"/distribution") {
+                val resp: HttpResponse = client.post(Constants.DINING_URL + "/distribution") {
                     setBody(serilizedOrder)
                 }
-            }}
+            }
+        }
         client.close()
     }
+}
 }

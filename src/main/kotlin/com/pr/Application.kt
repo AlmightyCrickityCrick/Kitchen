@@ -8,14 +8,21 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.netty.util.Constant
 import kotlinx.serialization.json.Json
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentSkipListMap
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
+import mu.KotlinLogging
 
 var orderList = ConcurrentSkipListMap<String, IntermediateOrder>() //Made to take the small priority fifo tasks first
 var chefList = Constants.getChefs()
 var menu = Constants.getMenu()
+var apparatusMap = ConcurrentHashMap<String, AtomicInteger>()
+var ovenList = ArrayList<CookingApparatus>()
+var stoveList = ArrayList<CookingApparatus>()
+var log = KotlinLogging.logger{}
 fun main() {
     embeddedServer(Netty, port = 8081) {
         configureSerialization()
@@ -30,7 +37,7 @@ fun main() {
                         AtomicInteger(0), ord.items, ord.priority, ord.max_wait,
                         ord.pick_up_time, System.currentTimeMillis(), ord.table_id, ord.waiter_id, ArrayList())
                 for (food in ord.items){
-                    intOrder.cooking_details.add(IntermediateDetail(food, null, AtomicInteger(0)))
+                    intOrder.cooking_details.add(IntermediateDetail(food, null, AtomicLong(0),AtomicInteger(0)))
                 }
                 //Add the order to the list(might update to queue after implementing priority)
                 orderList.put(intOrder.priority.toString()+intOrder.pick_up_time.toString(), intOrder)
@@ -39,6 +46,19 @@ fun main() {
             }
         }
     }.start(wait = false)
+
+    apparatusMap["stove"] = AtomicInteger(Constants.NR_OF_STOVE)
+    apparatusMap["oven"] = AtomicInteger(Constants.NR_OF_OVEN)
+
+    for(i in 0 .. Constants.NR_OF_OVEN-1){
+        ovenList.add(CookingApparatus())
+        ovenList[i].start()
+    }
+
+    for(i in 0 .. Constants.NR_OF_STOVE - 1){
+        stoveList.add(CookingApparatus())
+        stoveList[i].start()
+    }
 
     for (i in 0.. Constants.NR_OF_COOKS-1){
         chefList[i].start()

@@ -1,11 +1,23 @@
 package com.pr
 
+import Constants
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 
 data class IntermediateDetail(val food_id:Int,
                               var cook_id:Int?=null,
-                              var state:AtomicInteger //0 = not started, 1 = started 2 = ready
-                              )
+                              var cooking_time: AtomicLong = AtomicLong(0),
+                              var state:AtomicInteger //0 = not started, 1 = occupied by cook,  2 = ocuppied by apparatus, 3 = finished
+                              ){
+    fun isFinished():Boolean{
+        if (cooking_time.get() >= menu[food_id-1].preparationTime *Constants.TIME_UNIT) state.set(3)
+        return state.get() == 3
+    }
+
+    fun advanceCooking(time:Long){
+        cooking_time.addAndGet(time)
+    }
+}
 
 class IntermediateOrder(
     val order_id: Int,
@@ -27,7 +39,7 @@ class IntermediateOrder(
 
     fun checkIfReady():Boolean{
         for (cd in cooking_details) {
-            if (cd.state.get() == 0 || cd.state.get() == 1) return false
+            if (!cd.isFinished()) return false
         }
         this.state.set(1)
         return true

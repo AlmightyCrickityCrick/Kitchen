@@ -9,6 +9,8 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.netty.util.Constant
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.Semaphore
 import kotlinx.serialization.json.Json
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentSkipListMap
@@ -23,6 +25,9 @@ var apparatusMap = ConcurrentHashMap<String, AtomicInteger>()
 var ovenList = ArrayList<CookingApparatus>()
 var stoveList = ArrayList<CookingApparatus>()
 var log = KotlinLogging.logger{}
+
+
+var availableFoods = AtomicInteger(0)
 fun main() {
     embeddedServer(Netty, port = 8081) {
         configureSerialization()
@@ -40,7 +45,8 @@ fun main() {
                     intOrder.cooking_details.add(IntermediateDetail(food, null, AtomicLong(0),AtomicInteger(0)))
                 }
                 //Add the order to the list(might update to queue after implementing priority)
-                orderList.put(intOrder.priority.toString()+intOrder.pick_up_time.toString(), intOrder)
+                orderList.put(intOrder.pick_up_time.toString()+ intOrder.priority.toString(), intOrder)
+                availableFoods.addAndGet(ord.items.size)
                 //Answer the dining with an ok
                 call.respondText("Okay", status= HttpStatusCode.Created)
             }

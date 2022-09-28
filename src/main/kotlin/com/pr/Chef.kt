@@ -11,8 +11,6 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.thread
 
-var lock = ReentrantLock()
-
 class Chef : Thread() {
     var cookId = 0
     var rank = 0
@@ -22,7 +20,12 @@ class Chef : Thread() {
     var activeTask = AtomicInteger()
 
     override fun run() {
-        while(true) if (this.activeTask.get() < this.proficiency && orderList.size>0) searchTask()
+        while(true)
+            if (this.activeTask.get() < this.proficiency && orderList.size>0) {
+                while(availableFoods.get() == 0) onSpinWait()
+                //yield()
+                searchTask()
+            }
     }
 
     //Function to add information to each chef
@@ -53,7 +56,7 @@ class Chef : Thread() {
 
                             orderList[i]?.cooking_details?.get(food)?.state?.set(1)
                             orderList[i]?.cooking_details?.get(food)?.cook_id = this.cookId
-                            log.info{"Cook ${this.cookId} is cooking $food (prof ${menu[curCookDet.food_id - 1].complexity})from ${orderList[i]?.order_id} order"}
+                           log.info{"Cook ${this.cookId} is cooking $food (prof ${menu[curCookDet.food_id - 1].complexity})from ${orderList[i]?.order_id} order"}
                             cook(menu[curCookDet.food_id - 1], food, i)
                            // lock.unlock()
                             return
@@ -62,7 +65,7 @@ class Chef : Thread() {
 
                     }
                     //If the food has no unnasigned chefs, sends it back to dining
-                } else sendFood(i)
+                }
             } catch(e:NullPointerException){ print("")}
             //lock.unlock()
         }
@@ -74,6 +77,7 @@ class Chef : Thread() {
         cookSingle(f, fId, oId)
 
         } else if (f.cookingApparatus == "oven"){
+            availableFoods.decrementAndGet()
             var nr = 0
             for (o in 0 .. ovenList.size -1)
                 if(ovenList[o].apOrders.keys.size < ovenList[nr].apOrders.keys.size) {
@@ -82,6 +86,7 @@ class Chef : Thread() {
             ovenList[nr].apOrders.put(oId+fId, ApplianceOrder(f, fId, oId))
         orderList[oId]?.cooking_details?.get(fId)?.state?.set(2)
     } else if (f.cookingApparatus == "stove"){
+        availableFoods.decrementAndGet()
         var nr = 0
         for (s in 0..stoveList.size-1)
             if(stoveList[s].apOrders.keys.size < stoveList[nr].apOrders.keys.size) {
@@ -91,23 +96,25 @@ class Chef : Thread() {
         orderList[oId]?.cooking_details?.get(fId)?.state?.set(2)
     }
 
-    if(orderList[oId]?.checkIfReady() == true) sendFood(oId)
-
     }
     fun cookSingle(f: Food, fId: Int, oId:String){
         val task = thread {
-                var t = f.preparationTime / orderList[oId]?.priority!!
+                var t = //3 * Constants.TIME_UNIT
+                    f.preparationTime / orderList[oId]?.priority!!
 //                    if ((orderList[oId]?.priority!! * 200) < temp) orderList[oId]?.priority else ((f.preparationTime * Constants.TIME_UNIT) - orderList[oId]?.cooking_details?.get(
 //                        fId
 //                    )?.cooking_time?.get()!!)
-                (t)?.toLong()?.let { sleep(it * Constants.TIME_UNIT) }
+                (t)?.toLong()?.let { sleep(it *Constants.TIME_UNIT) }
                 //Set food as finished
                 if (t != null) {
-                    orderList[oId]?.cooking_details?.get(fId)?.advanceCooking(t.toLong() * Constants.TIME_UNIT)
-                    if (orderList[oId]?.cooking_details?.get(fId)?.isFinished() == false
-                    ) orderList[oId]?.cooking_details?.get(fId)?.state?.set(0)
+                    orderList[oId]?.cooking_details?.get(fId)?.advanceCooking(t.toLong() *Constants.TIME_UNIT)
+                    if (orderList[oId]?.cooking_details?.get(fId)?.isFinished() == false) {
+                        orderList[oId]?.cooking_details?.get(fId)?.state?.set(0)
+                        availableFoods.decrementAndGet()
+                    }
                 }
                 activeTask.decrementAndGet()
+            if(orderList[oId]?.checkIfReady()==true)sendFood(oId)
         }
     }
 

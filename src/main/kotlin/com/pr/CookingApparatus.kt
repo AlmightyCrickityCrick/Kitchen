@@ -28,12 +28,13 @@ class CookingApparatus:Thread() {
     fun cook(f: Food, fId: Int, oId:String){
         apparatusMap[f.cookingApparatus]?.decrementAndGet()
         isFree.set(false)
-        var t = f.preparationTime / orderList[oId]?.priority!!
+        var t = //3 * Constants.TIME_UNIT
+            f.preparationTime / orderList[oId]?.priority!!
         log.info {  " ${f.cookingApparatus} is cooking $fId from ${orderList[oId]?.order_id} order for $t"}
         //if((orderList[oId]?.priority!!*200) < ((f.preparationTime * Constants.TIME_UNIT)- orderList[oId]?.cooking_details?.get(fId)?.cooking_time?.get()!!)) orderList[oId]?.priority else ((f.preparationTime *Constants.TIME_UNIT)- orderList[oId]?.cooking_details?.get(fId)?.cooking_time?.get()!!)
-        (t)?.toLong()?.let { sleep(it * Constants.TIME_UNIT ) }
+        (t)?.toLong()?.let { sleep(it *Constants.TIME_UNIT)}
         if (t != null) {
-            orderList[oId]?.cooking_details?.get(fId)?.advanceCooking((t).toLong() * Constants.TIME_UNIT)
+            orderList[oId]?.cooking_details?.get(fId)?.advanceCooking((t).toLong() *Constants.TIME_UNIT)
             if(orderList[oId]?.checkIfReady() == true) chefList[orderList[oId]?.cooking_details?.get(fId)?.cook_id!! - 1].sendFood(oId)
         }
             //Set food as finished

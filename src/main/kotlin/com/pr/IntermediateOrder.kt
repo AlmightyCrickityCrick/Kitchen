@@ -4,18 +4,20 @@ import Constants
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 
-data class IntermediateDetail(val food_id:Int,
+data class IntermediateDetail(
+    val order_id: Int, val food_id:Int,
                               var cook_id:Int?=null,
-                              var cooking_time: AtomicLong = AtomicLong(0),
+                              var cooking_time: AtomicLong,
                               var state:AtomicInteger //0 = not started, 1 = occupied by cook,  2 = ocuppied by apparatus, 3 = finished
                               ){
     fun isFinished():Boolean{
-        if (cooking_time.get() >= menu[food_id-1].preparationTime *Constants.TIME_UNIT) state.set(3)
         return state.get() == 3
     }
 
     fun advanceCooking(time:Long){
         cooking_time.addAndGet(time)
+        if (cooking_time.get() >= menu[food_id-1].preparationTime *Constants.TIME_UNIT) state.set(3)
+       // println("${cooking_time.get()} + ${this.state.get()}")
     }
 }
 

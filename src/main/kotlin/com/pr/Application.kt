@@ -8,9 +8,6 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.netty.util.Constant
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.Semaphore
 import kotlinx.serialization.json.Json
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentSkipListMap
@@ -25,6 +22,8 @@ var apparatusMap = ConcurrentHashMap<String, AtomicInteger>()
 var ovenList = ArrayList<CookingApparatus>()
 var stoveList = ArrayList<CookingApparatus>()
 var log = KotlinLogging.logger{}
+
+var foodList = ConcurrentSkipListMap<Int, MutableList<IntermediateDetail>>()
 
 
 var availableFoods = AtomicInteger(0)
@@ -42,7 +41,10 @@ fun main() {
                         AtomicInteger(0), ord.items, ord.priority, ord.max_wait,
                         ord.pick_up_time, System.currentTimeMillis(), ord.table_id, ord.waiter_id, ArrayList())
                 for (food in ord.items){
-                    intOrder.cooking_details.add(IntermediateDetail(food, null, AtomicLong(0),AtomicInteger(0)))
+                    var tmp = IntermediateDetail(ord.order_id,food, null, AtomicLong(0),AtomicInteger(0))
+                    intOrder.cooking_details.add(tmp)
+                    foodList[menu[food - 1].complexity]?.add(tmp)
+
                 }
                 //Add the order to the list(might update to queue after implementing priority)
                 orderList.put(intOrder.pick_up_time.toString()+ intOrder.priority.toString(), intOrder)
@@ -52,6 +54,9 @@ fun main() {
             }
         }
     }.start(wait = false)
+    foodList.put(1, ArrayList<IntermediateDetail>())
+    foodList.put(2, ArrayList<IntermediateDetail>())
+    foodList.put(3, ArrayList<IntermediateDetail>())
 
     apparatusMap["stove"] = AtomicInteger(Constants.NR_OF_STOVE)
     apparatusMap["oven"] = AtomicInteger(Constants.NR_OF_OVEN)

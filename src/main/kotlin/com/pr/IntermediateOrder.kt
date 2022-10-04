@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 
 data class IntermediateDetail(
-    val order_id: Int, val food_id:Int,
+    val order_id: String, val food_id:Int, val food_in_order_id: Int, val priority: Int,
                               var cook_id:Int?=null,
                               var cooking_time: AtomicLong,
                               var state:AtomicInteger //0 = not started, 1 = occupied by cook,  2 = ocuppied by apparatus, 3 = finished

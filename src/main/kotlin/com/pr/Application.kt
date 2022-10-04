@@ -8,12 +8,14 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.serialization.json.Json
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentSkipListMap
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import mu.KotlinLogging
+import kotlinx.coroutines.channels.Channel
 
 var orderList = ConcurrentSkipListMap<String, IntermediateOrder>() //Made to take the small priority fifo tasks first
 var chefList = Constants.getChefs()
@@ -23,10 +25,12 @@ var ovenList = ArrayList<CookingApparatus>()
 var stoveList = ArrayList<CookingApparatus>()
 var log = KotlinLogging.logger{}
 
-var foodList = ConcurrentSkipListMap<Int, MutableList<IntermediateDetail>>()
+var foodList = ConcurrentSkipListMap<Int, Channel<IntermediateDetail>>()
 
 
 var availableFoods = AtomicInteger(0)
+
+@OptIn(DelicateCoroutinesApi::class)
 fun main() {
     embeddedServer(Netty, port = 8081) {
         configureSerialization()
@@ -54,9 +58,9 @@ fun main() {
             }
         }
     }.start(wait = false)
-    foodList.put(1, ArrayList<IntermediateDetail>())
-    foodList.put(2, ArrayList<IntermediateDetail>())
-    foodList.put(3, ArrayList<IntermediateDetail>())
+    foodList.put(1, Channel<IntermediateDetail>())
+    foodList.put(2, Channel<IntermediateDetail>())
+    foodList.put(3, Channel<IntermediateDetail>())
 
     apparatusMap["stove"] = AtomicInteger(Constants.NR_OF_STOVE)
     apparatusMap["oven"] = AtomicInteger(Constants.NR_OF_OVEN)
@@ -72,6 +76,10 @@ fun main() {
     }
 
     for (i in 0.. Constants.NR_OF_COOKS-1){
-        chefList[i].start()
+        repeat(chefList[i].proficiency){
+            launch{
+                chefList[i].run()
+            }
+        }
     }
 }

@@ -13,7 +13,7 @@ import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.thread
 
 var lock = ReentrantLock()
-class Chef : Thread() {
+class Chef : {
     var cookId = 0
     var rank = 0
     var proficiency = 0
@@ -21,7 +21,7 @@ class Chef : Thread() {
     var catchPhrase = ""
     var activeTask = AtomicInteger()
 
-    override fun run() {
+    suspend fun run() {
         while(true)
             if (this.activeTask.get() < this.proficiency && orderList.size>0) {
                 //while(availableFoods.get() == 0) onSpinWait()
@@ -31,7 +31,7 @@ class Chef : Thread() {
     }
 
     //Function to add information to each chef
-    fun setCook(id: Int, rank: Int, proficiency: Int, name: String, catchPhrase: String, ) {
+    suspend fun setCook(id: Int, rank: Int, proficiency: Int, name: String, catchPhrase: String, ) {
         this.cookId = id
         this.rank = rank
         this.proficiency = proficiency

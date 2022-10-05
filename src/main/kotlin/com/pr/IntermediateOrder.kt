@@ -5,16 +5,16 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 
 data class IntermediateDetail(
-    val order_id: Int, val food_id:Int,
+    val order_id: String, val food_id:Int, val food_in_order_id: Int, val priority: Int,
                               var cook_id:Int?=null,
                               var cooking_time: AtomicLong,
                               var state:AtomicInteger //0 = not started, 1 = occupied by cook,  2 = ocuppied by apparatus, 3 = finished
                               ){
-    fun isFinished():Boolean{
+    suspend fun isFinished():Boolean{
         return state.get() == 3
     }
 
-    fun advanceCooking(time:Long){
+    suspend fun advanceCooking(time:Long){
         cooking_time.addAndGet(time)
         if (cooking_time.get() >= menu[food_id-1].preparationTime *Constants.TIME_UNIT) state.set(3)
        // println("${cooking_time.get()} + ${this.state.get()}")
@@ -30,7 +30,7 @@ class IntermediateOrder(
     var cooking_time: Long, var table_id: Int,
     var waiter_id: Int, var cooking_details: ArrayList<IntermediateDetail>) {
 
-    fun toFinished():FinishedOrder{
+    suspend fun toFinished():FinishedOrder{
         var cd = ArrayList<CookingDetail>()
         for (c in cooking_details){
             var detail = CookingDetail(c.food_id, c.cook_id)
@@ -39,7 +39,7 @@ class IntermediateOrder(
         return FinishedOrder(order_id, items, priority, max_wait, pick_up_time, cooking_time-System.currentTimeMillis(), table_id, waiter_id, cd)
     }
 
-    fun checkIfReady():Boolean{
+    suspend fun checkIfReady():Boolean{
         for (cd in cooking_details) {
             if (!cd.isFinished()) return false
         }

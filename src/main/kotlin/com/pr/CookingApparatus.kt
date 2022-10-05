@@ -1,51 +1,43 @@
 package com.pr
 
 import Constants
+import foodList
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentSkipListMap
 import java.util.concurrent.atomic.AtomicBoolean
 
 //data class ApplianceOrder(val f:Food, val fId: Int, val oId: String)
 
-class CookingApparatus:Thread() {
-    var isFree=AtomicBoolean(true)
+class CookingApparatus(    var isFree:AtomicBoolean, var channel : Channel<IntermediateDetail>) {
+    suspend fun run(){
+        for (f in channel){
+            cook(f)
+        }
+    }
 
-//    override fun run() {
-//        super.run()
-//        while (true){
-//            if(apOrders.size > 0)
-//                for (ao in apOrders.values)
-//                    if(orderList[ao.oId]?.cooking_details?.get(ao.fId)?.isFinished() == false)
-//                        cook(ao.f, ao.fId, ao.oId)
-//                    else{
-//                        if(orderList[ao.oId]?.checkIfReady() == true) chefList[orderList[ao.oId]?.cooking_details?.get(ao.fId)?.cook_id!! - 1].sendFood(ao.oId)
-//                        if(orderList[ao.oId]?.cooking_details?.get(ao.fId)?.isFinished() == true) apOrders.remove(ao.oId+ao.fId)
-//                    }
-//        }
-//    }
-
-    fun cook(f: Food, fId: Int, oId:String){
+    suspend fun cook(f: IntermediateDetail){
         var t = 3
-           // f.preparationTime / orderList[oId]?.priority!!
-        log.info {  " ${f.cookingApparatus} is cooking $fId from ${orderList[oId]?.order_id} order for $t"}
+            //if((menu[f.food_id -1].preparationTime *Constants.TIME_UNIT) - f.cooking_time.get() >= (1 * Constants.TIME_UNIT) )1 else ((menu[f.food_id -1].preparationTime *Constants.TIME_UNIT) - f.cooking_time.get()) /Constants.TIME_UNIT
+            //menu[f.food_id -1].preparationTime / f.priority
+        log.info {  " ${menu[f.food_id - 1].cookingApparatus} is cooking ${f.food_in_order_id} from ${f.order_id} order for $t"}
         //if((orderList[oId]?.priority!!*200) < ((f.preparationTime * Constants.TIME_UNIT)- orderList[oId]?.cooking_details?.get(fId)?.cooking_time?.get()!!)) orderList[oId]?.priority else ((f.preparationTime *Constants.TIME_UNIT)- orderList[oId]?.cooking_details?.get(fId)?.cooking_time?.get()!!)
-        (t)?.toLong()?.let { sleep(it *Constants.TIME_UNIT)}
-        if (t != null) {
-            orderList[oId]?.cooking_details?.get(fId)?.advanceCooking((t).toLong() *Constants.TIME_UNIT)
-            if(orderList[oId]?.cooking_details?.get(fId)?.isFinished() == true) {
+        (t)?.toLong()?.let { delay(it *Constants.TIME_UNIT)}
+        isFree.set(true)
+            f.advanceCooking((t).toLong() *Constants.TIME_UNIT)
+            orderList[f.order_id]?.cooking_details?.get(f.food_in_order_id)?.advanceCooking((t).toLong() *Constants.TIME_UNIT)
+            if(f.isFinished()) {
                 availableFoods.decrementAndGet()
-                if(orderList[oId]?.checkIfReady()==true) chefList[orderList[oId]?.cooking_details?.get(fId)?.cook_id!! - 1].sendFood(oId)
-
+                finishChannel.send(f)
             } else {
-                orderList[oId]?.cooking_details?.get(fId)?.state?.set(0)
+                orderList[f.order_id]?.cooking_details?.get(f.food_in_order_id)?.state?.set(0)
+                f.state.set(0)
+                foodList[menu[f.food_id - 1].complexity]?.send(f)
 
             }
 
-        }
             //Set food as finished
-        isFree.set(true)
-        apparatusMap[f.cookingApparatus]?.incrementAndGet()
-
     }
 
 }

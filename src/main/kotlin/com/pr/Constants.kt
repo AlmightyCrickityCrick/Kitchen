@@ -1,13 +1,18 @@
 import com.pr.Chef
 import com.pr.Food
+import com.pr.IntermediateDetail
+import kotlinx.coroutines.channels.Channel
+import java.util.concurrent.ConcurrentSkipListMap
 
+var foodList = ConcurrentSkipListMap<Int, Channel<IntermediateDetail>>()
 object Constants{
     val NR_OF_COOKS = 4
     val NR_OF_OVEN = 2
     val NR_OF_STOVE = 1
-    val TIME_UNIT = 1000
+    val TIME_UNIT = 500
     //val DINING_URL = "http://dining-container:8080"
     val DINING_URL = "http://localhost:8080"
+
 
     fun getMenu():ArrayList<Food>{
         var foods= ArrayList<Food>()
@@ -57,22 +62,30 @@ object Constants{
     }
 
     fun getChefs():ArrayList<Chef>{
+        setChannels()
         var chefList = arrayListOf<Chef>()
         var c1 = Chef()
-        c1.setCook(1, 3, 4, "Gordon Ramsey", "U idiot Sandwhich")
+        c1.setCook(1, 3, 4, "Gordon Ramsey", "U idiot Sandwhich",
+            mutableListOf(foodList[1]!!, foodList[2]!!, foodList[3]!!))
         chefList.add(c1)
 
         c1 = Chef()
-        c1.setCook(2, 2, 3, "Julia Child", "Why are we here?")
+        c1.setCook(2, 2, 3, "Julia Child", "Why are we here?",mutableListOf(foodList[1]!!, foodList[2]!!))
         chefList.add(c1)
 
         c1 = Chef()
-        c1.setCook(3, 2, 2, "Alton Brown", "Just to suffer?")
+        c1.setCook(3, 2, 2, "Alton Brown", "Just to suffer?", mutableListOf(foodList[1]!!, foodList[2]!!))
         chefList.add(c1)
 
         c1 = Chef()
-        c1.setCook(4, 1, 2, "Jamie Oliver", ":(")
+        c1.setCook(4, 1, 2, "Jamie Oliver", ":(", mutableListOf(foodList[1]!!))
         chefList.add(c1)
         return chefList
+    }
+
+    fun setChannels(){
+        foodList.put(1, Channel<IntermediateDetail>())
+        foodList.put(2, Channel<IntermediateDetail>())
+        foodList.put(3, Channel<IntermediateDetail>())
     }
 }

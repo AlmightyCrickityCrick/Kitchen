@@ -31,15 +31,15 @@ class Chef :Thread(){
                 //searchTask()
                for (i in 0 until proficiency) thread{
                 var i = searchFood(rank)
-                   if(i==false) cookSurplus()
+                  // if(i==false) cookSurplus()
                }
                 //if(!i) rank = if (rank>1) rank - 1 else this.rank
             //}
     }
 
-    fun cookSurplus(i:Int){
-
-    }
+//    fun cookSurplus(i:Int){
+//
+//    }
 
      fun searchFood(rank:Int):Boolean{
         if ((foodList[rank]?.get("oven")?.isEmpty()) == false && (ovenSem.availablePermits() > 0)) {

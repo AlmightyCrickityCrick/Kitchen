@@ -2,6 +2,20 @@ package com.pr
 
 import kotlinx.serialization.Serializable
 
+@Serializable
+data class Self(var nr_of_tables: Int,
+                var nr_of_waiters: Int,
+                var max_foods: Int,
+                var time_unit: Int,
+                var kitchen_url: String,
+                var dining_url : String,
+                var dining_port: Int,
+                var kitchen_port: Int,
+                var kitchen_ordering: String,
+                var restaurant_name: String,
+                var restaurant_id : Int,
+                var food_ordering_url: String)
+@Serializable
 data class Food(val id: Int, val name : String, val preparationTime : Int, val complexity: Int, val cookingApparatus: String? =null){}
 
 

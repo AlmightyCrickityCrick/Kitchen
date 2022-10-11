@@ -7,7 +7,8 @@ object Constants{
     val NR_OF_STOVE = 1
     val TIME_UNIT = 1000
     //val DINING_URL = "http://dining-container:8080"
-    val DINING_URL = "http://localhost:8080"
+    val DINING_URL = "http://dining-container1:8082"
+    //val DINING_URL = "http://localhost:8080"
 
     fun getMenu():ArrayList<Food>{
         var foods= ArrayList<Food>()

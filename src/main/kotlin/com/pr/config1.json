@@ -1,0 +1,15 @@
+{
+  "nr_of_tables": 10,
+  "nr_of_waiters": 4,
+  "max_foods": 5,
+  "time_unit": 1000,
+  "kitchen_url": "http://kitchen-container:8081",
+  "dining_url": "http://dining-container:8080",
+  "dining_port": 8080,
+  "kitchen_port": 8081,
+  "kitchen_ordering": "/order",
+  "restaurant_name": "McDonalds",
+  "restaurant_id": 1,
+  "food_ordering_url": "http://food-ordering:8088"
+
+}

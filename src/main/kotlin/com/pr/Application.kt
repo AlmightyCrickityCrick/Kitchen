@@ -16,6 +16,7 @@ import kotlinx.serialization.json.Json
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import mu.KotlinLogging
+import java.io.File
 import java.util.concurrent.*
 
 var orderList = ConcurrentSkipListMap<String, IntermediateOrder>() //Made to take the small priority fifo tasks first
@@ -32,7 +33,7 @@ var ovenSem = Semaphore(Constants.NR_OF_OVEN)
 var stoveSem = Semaphore(Constants.NR_OF_STOVE)
 
 var surplus = ConcurrentHashMap<Int, LinkedBlockingQueue<IntermediateDetail>>()
-
+lateinit var rest : Self
 
 
 var availableFoods = AtomicInteger(0)
@@ -44,7 +45,9 @@ fun main() {
     for (i in 1..13){
         surplus.put(i, LinkedBlockingQueue())
     }
-    embeddedServer(Netty, port = 8081) {
+    //var conf = File("src/main/kotlin/com/pr/config1.json").inputStream().readBytes().toString(Charsets.UTF_8)
+    //rest = Json{coerceInputValues = true}.decodeFromString(Self.serializer(), conf)
+    embeddedServer(Netty, port = 8083) {
         configureSerialization()
         routing {
             post("/order") {

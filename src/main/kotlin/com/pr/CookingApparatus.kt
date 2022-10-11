@@ -26,8 +26,9 @@ class CookingApparatus:Thread() {
 //    }
 
     fun cook(f: IntermediateDetail){
-        var t = //if((menu[f.food_id -1].preparationTime *Constants.TIME_UNIT) - f.cooking_time.get() >= (1 * Constants.TIME_UNIT) )1 else ((menu[f.food_id -1].preparationTime *Constants.TIME_UNIT) - f.cooking_time.get()) /Constants.TIME_UNIT
-            menu[f.food_id -1].preparationTime / f.priority
+        var t = 3
+            //if((menu[f.food_id -1].preparationTime *Constants.TIME_UNIT) - f.cooking_time.get() >= (1 * Constants.TIME_UNIT) )1 else ((menu[f.food_id -1].preparationTime *Constants.TIME_UNIT) - f.cooking_time.get()) /Constants.TIME_UNIT
+            //menu[f.food_id -1].preparationTime / f.priority
         log.info {  " ${menu[f.food_id - 1].cookingApparatus} is cooking ${f.food_in_order_id} from ${f.order_id} order for $t"}
         log.info { "${foodList[1]?.get("null")?.size}" }
         //if((orderList[oId]?.priority!!*200) < ((f.preparationTime * Constants.TIME_UNIT)- orderList[oId]?.cooking_details?.get(fId)?.cooking_time?.get()!!)) orderList[oId]?.priority else ((f.preparationTime *Constants.TIME_UNIT)- orderList[oId]?.cooking_details?.get(fId)?.cooking_time?.get()!!)

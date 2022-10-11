@@ -4,7 +4,7 @@ WORKDIR /home/gradle/src
 RUN gradle buildFatJar --no-daemon
 
 FROM openjdk:11
-EXPOSE 8081:8081
+EXPOSE 8083:8083
 RUN mkdir /app
 COPY --from=build /home/gradle/src/build/libs/*.jar /app/ktor-docker-sample.jar
 ENTRYPOINT ["java","-jar","/app/ktor-docker-sample.jar"]

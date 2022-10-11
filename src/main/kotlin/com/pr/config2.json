@@ -1,0 +1,15 @@
+{
+  "nr_of_tables": 10,
+  "nr_of_waiters": 4,
+  "max_foods": 5,
+  "time_unit": 1000,
+  "kitchen_url": "http://kitchen-container-1:8083",
+  "dining_url": "http://dining-container-1:8082",
+  "dining_port": 8082,
+  "kitchen_port": 8083,
+  "kitchen_ordering": "/order",
+  "restaurant_name": "Cantina UTM",
+  "restaurant_id": 2,
+  "food_ordering_url": "http://food-ordering:8088"
+
+}

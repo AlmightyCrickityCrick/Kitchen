@@ -8,6 +8,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
+import java.util.concurrent.Executor
+import java.util.concurrent.Executors
+import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
@@ -21,6 +24,7 @@ class Chef :Thread(){
     var cookName = ""
     var catchPhrase = ""
     var activeTask = AtomicInteger()
+    lateinit var task : ThreadPoolExecutor
 
     override fun run() {
         var rank = this.rank
@@ -29,10 +33,10 @@ class Chef :Thread(){
                 //while(availableFoods.get() == 0) onSpinWait()
                 //yield()
                 //searchTask()
-               for (i in 0 until proficiency) thread{
-                var i = searchFood(rank)
-                  // if(i==false) cookSurplus()
-               }
+               for (i in 0 until proficiency) thread { searchFood(this.rank) }
+
+        // if(i==false) cookSurplus()
+
                 //if(!i) rank = if (rank>1) rank - 1 else this.rank
             //}
     }

@@ -32,12 +32,12 @@ class CookingApparatus:Thread() {
         log.info {  " ${menu[f.food_id - 1].cookingApparatus} is cooking ${f.food_in_order_id} from ${f.order_id} order for $t"}
         log.info { "${foodList[1]?.get("null")?.size}" }
         //if((orderList[oId]?.priority!!*200) < ((f.preparationTime * Constants.TIME_UNIT)- orderList[oId]?.cooking_details?.get(fId)?.cooking_time?.get()!!)) orderList[oId]?.priority else ((f.preparationTime *Constants.TIME_UNIT)- orderList[oId]?.cooking_details?.get(fId)?.cooking_time?.get()!!)
-        (t)?.toLong()?.let { sleep(it *Constants.TIME_UNIT)}
+        (t)?.toLong()?.let { sleep(it * rest.time_unit)}
         if (menu[f.food_id - 1].cookingApparatus == "oven") ovenSem.release() else stoveSem.release()
         isFree.set(true)
         if (t != null) {
-            f.advanceCooking((t).toLong() *Constants.TIME_UNIT)
-            orderList[f.order_id]?.cooking_details?.get(f.food_in_order_id)?.advanceCooking((t).toLong() *Constants.TIME_UNIT)
+            f.advanceCooking((t).toLong() * rest.time_unit)
+            orderList[f.order_id]?.cooking_details?.get(f.food_in_order_id)?.advanceCooking((t).toLong() * rest.time_unit)
             if(f.isFinished()) {
                 availableFoods.decrementAndGet()
                 if(orderList[f.order_id]?.checkIfReady()==true) chefList[orderList[f.order_id]?.cooking_details?.get(f.food_in_order_id)?.cook_id!! - 1].sendFood(f.order_id)

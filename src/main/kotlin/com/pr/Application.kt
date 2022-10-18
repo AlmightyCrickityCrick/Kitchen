@@ -45,9 +45,9 @@ fun main() {
     for (i in 1..13){
         surplus.put(i, LinkedBlockingQueue())
     }
-    //var conf = File("src/main/kotlin/com/pr/config1.json").inputStream().readBytes().toString(Charsets.UTF_8)
-    //rest = Json{coerceInputValues = true}.decodeFromString(Self.serializer(), conf)
-    embeddedServer(Netty, port = 8083) {
+    var conf = File("config/config.json").inputStream().readBytes().toString(Charsets.UTF_8)
+    rest = Json{coerceInputValues = true}.decodeFromString(Self.serializer(), conf)
+    embeddedServer(Netty, port = rest.kitchen_port) {
         configureSerialization()
         routing {
             post("/order") {

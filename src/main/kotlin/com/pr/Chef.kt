@@ -123,12 +123,12 @@ class Chef :Thread(){
 //                        fId
 //                    )?.cooking_time?.get()!!)
             log.info { "Chef ${this.cookId} is cooking ${f.food_in_order_id} from ${f.order_id} (complexity ${menu[f.food_id -1].complexity})" }
-            (t)?.toLong()?.let { sleep(it *Constants.TIME_UNIT) }
+            (t)?.toLong()?.let { sleep(it * rest.time_unit) }
             activeTask.decrementAndGet()
             //Set food as finished
             if (t != null) {
-                orderList[f.order_id]?.cooking_details?.get(f.food_in_order_id)?.advanceCooking(t.toLong() *Constants.TIME_UNIT)
-                f.advanceCooking((t).toLong() *Constants.TIME_UNIT)
+                orderList[f.order_id]?.cooking_details?.get(f.food_in_order_id)?.advanceCooking(t.toLong() *rest.time_unit)
+                f.advanceCooking((t).toLong() *rest.time_unit)
                 if (orderList[f.order_id]?.cooking_details?.get(f.food_in_order_id)?.isFinished() == false) {
                     orderList[f.order_id]?.cooking_details?.get(f.food_in_order_id)?.state?.set(0)
                     f.state.set(0)
@@ -261,7 +261,7 @@ class Chef :Thread(){
         log.info {  "${ord?.order_id} is done"}
         runBlocking {
             var job = launch {
-                val resp: HttpResponse = client.post(Constants.DINING_URL + "/distribution") {
+                val resp: HttpResponse = client.post(rest.dining_url + "/distribution") {
                     setBody(serilizedOrder)
                 }
             }

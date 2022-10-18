@@ -10,6 +10,8 @@
   "kitchen_ordering": "/order",
   "restaurant_name": "Cantina UTM",
   "restaurant_id": 2,
-  "food_ordering_url": "http://food-ordering:8088"
+  "food_ordering_url": "http://food-ordering:8088",
+  "cook_prof": 11,
+  "cook_ap": 3
 
 }

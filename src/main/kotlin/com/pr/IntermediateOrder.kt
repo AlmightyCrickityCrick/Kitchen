@@ -16,7 +16,7 @@ data class IntermediateDetail(
 
     fun advanceCooking(time:Long){
         cooking_time.addAndGet(time)
-        if (cooking_time.get() >= menu[food_id-1].preparationTime *Constants.TIME_UNIT) state.set(3)
+        if (cooking_time.get() >= menu[food_id-1].preparationTime *rest.time_unit) state.set(3)
        // println("${cooking_time.get()} + ${this.state.get()}")
     }
 }
@@ -27,8 +27,8 @@ class IntermediateOrder(
     var items: ArrayList<Int>,
     var priority:Int,
     var max_wait: Int, var pick_up_time: Long,
-    var cooking_time: Long, var table_id: Int,
-    var waiter_id: Int, var cooking_details: ArrayList<IntermediateDetail>) {
+    var cooking_time: Long, var table_id: Int?=null,
+    var waiter_id: Int?=null, var cooking_details: ArrayList<IntermediateDetail>) {
 
     fun toFinished():FinishedOrder{
         var cd = ArrayList<CookingDetail>()

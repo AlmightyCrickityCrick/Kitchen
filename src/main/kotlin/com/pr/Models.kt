@@ -41,3 +41,6 @@ data class FinishedOrder(
         return false
     }
 }
+
+@Serializable
+data class MenuResource(val foods : ArrayList<Food>)

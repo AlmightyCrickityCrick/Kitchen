@@ -1,5 +1,8 @@
 import com.pr.Chef
 import com.pr.Food
+import com.pr.MenuResource
+import kotlinx.serialization.json.Json
+import java.io.File
 
 object Constants{
     val NR_OF_COOKS = 4
@@ -11,48 +14,10 @@ object Constants{
     //val DINING_URL = "http://localhost:8080"
 
     fun getMenu():ArrayList<Food>{
-        var foods= ArrayList<Food>()
-        foods.add(
-            Food(1, "pizza", 20, 2, "oven" )
-        )
+        var conf = File("config/menu.json").inputStream().readBytes().toString(Charsets.UTF_8)
+        var foods= Json{coerceInputValues = true}.decodeFromString(MenuResource.serializer(), conf).foods
 
-        foods.add(
-            Food(2, "salad", 10, 1, null )
-        )
-        foods.add(
-            Food(3, "zeama", 7, 1, "stove" )
-        )
-        foods.add(
-            Food(4, "Scallop Sashimi", 32, 3, null )
-        )
-        foods.add(
-            Food(5, "Island Duck", 35, 3, "oven" )
-        )
-        foods.add(
-            Food(6, "Waffles", 10, 1, "stove" )
-        )
-        foods.add(
-            Food(7, "Aubergine", 20, 2, "oven" )
-        )
-        foods.add(
-            Food(8, "Lasagna", 30, 2, "oven" )
-        )
-        foods.add(
-            Food(9, "Burger", 15, 1, "stove" )
-        )
-        foods.add(
-            Food(10, "Gyros", 15, 1, null )
-        )
-        foods.add(
-            Food(11, "Kebab", 15, 1, null )
-        )
-        foods.add(
-            Food(12, "Unagi Maki", 20, 2, null )
-        )
-        foods.add(
-            Food(13, "Tabacco Chicken", 30, 2, "oven" )
-        )
-
+        print(foods)
         return foods
 
     }
